@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "873421946575",
+    "project_id": "mumbaifinal-54b26",
+    "storage_bucket": "mumbaifinal-54b26.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:873421946575:android:04e1c7f9b2dbb2d52201ba",
+        "android_client_info": {
+          "package_name": "com.example.mumbaihacksfinal"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAjWcjUsjpxwbgRGlTE0yd3X5sKqp0Wpzw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
