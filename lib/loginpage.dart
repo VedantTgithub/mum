@@ -87,7 +87,7 @@ class _LoginPageState extends State<LoginPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Text(
-                'MumbaiHacks',
+                'Janhit Mitra',
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 32.0,

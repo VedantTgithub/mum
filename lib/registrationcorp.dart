@@ -59,6 +59,7 @@ class _RegistrationCorpPageState extends State<RegistrationCorpPage> {
           'Corporator Registration',
           style: TextStyle(color: Colors.white),
         ),
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),

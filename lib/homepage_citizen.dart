@@ -4,7 +4,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:mumbaihacksfinal/loginpage.dart';
 import 'registercomplaint.dart';
 import 'profile.dart';
-import 'viewall.dart'; // Ensure this import is added
+import 'viewall.dart';
+import 'chatbotpage.dart';
+import 'pdfchat.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class HomePageCitizen extends StatelessWidget {
   const HomePageCitizen({Key? key}) : super(key: key);
@@ -13,19 +16,46 @@ class HomePageCitizen extends StatelessWidget {
   Widget build(BuildContext context) {
     final List<Map<String, String>> schemes = [
       {
-        'title': 'Healthcare Assistance Program',
+        'title': 'National Agriculture Market - eNAM',
         'description':
-            'Free or subsidized medical treatment for low-income families in community hospitals.',
+            'An online trading platform for agricultural commodities in India to help farmers with better price discovery.',
+        'image': 'assets/enam.png',
+        'url': 'https://enam.gov.in/web/',
       },
       {
-        'title': 'Clean Neighborhood Initiative',
+        'title': 'Pradhan Mantri Kisan Sanman Nidhi',
         'description':
-            'Monthly sanitation drives and waste management support to keep neighborhoods clean.',
+            'Income support of Rs.6,000 per year to farmer families with cultivable land.',
+        'image': 'assets/kalpana-ubhe.jpg',
+        'url': 'https://www.pmkisan.gov.in/',
       },
       {
-        'title': 'Employment Training Scheme',
+        'title': 'Agricultural Pledge Loan Scheme',
         'description':
-            'Skill development workshops and job placement support for unemployed youth.',
+            'Get a loan against your produce stored in APMC godown to fetch higher prices.',
+        'image': 'assets/pledgeLoan.jpg',
+        'url': 'https://www.msamb.com/Schemes/PledgeFinance',
+      },
+      {
+        'title': 'Export Subsidy for Agriculture Commodities',
+        'description':
+            'Subsidy of Rs. 50,000 per container for exporting agricultural commodities by sea route.',
+        'image': 'assets/Subsidy.jpg',
+        'url': 'https://www.msamb.com/Schemes/ExportScheme',
+      },
+      {
+        'title': 'Fruit and Grain Festival Subsidy',
+        'description':
+            'Financial assistance for organizing festivals for selling seasonal fruits and grains directly.',
+        'image': 'assets/fruit&grain.jpg',
+        'url': 'https://www.msamb.com/Schemes/Fruitsandgrainfestival',
+      },
+      {
+        'title': 'Road Transport Subsidy Scheme',
+        'description':
+            'Subsidy for direct sale of agricultural commodities transported by road from Maharashtra.',
+        'image': 'assets/transportRoad.jpg',
+        'url': 'https://www.msamb.com/Schemes/RoadTrasport',
       },
     ];
 
@@ -37,11 +67,12 @@ class HomePageCitizen extends StatelessWidget {
           style: TextStyle(color: Colors.white),
         ),
         backgroundColor: Colors.black,
+        iconTheme: const IconThemeData(color: Colors.white),
         actions: [
-          TextButton(
+          IconButton(
+            icon: const Icon(Icons.logout),
             onPressed: () async {
               await FirebaseAuth.instance.signOut();
-
               Navigator.of(context).pushAndRemoveUntil(
                 MaterialPageRoute(
                   builder: (context) => LoginPage(),
@@ -49,10 +80,6 @@ class HomePageCitizen extends StatelessWidget {
                 (route) => false,
               );
             },
-            child: const Text(
-              'Logout',
-              style: TextStyle(color: Colors.white),
-            ),
           ),
         ],
       ),
@@ -75,31 +102,65 @@ class HomePageCitizen extends StatelessWidget {
               items: schemes.map((scheme) {
                 return Builder(
                   builder: (BuildContext context) {
-                    return Card(
-                      color: Colors.grey[900],
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(15.0),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                    return GestureDetector(
+                      onTap: () async {
+                        final url = scheme['url']!;
+                        if (await canLaunch(url)) {
+                          await launch(url);
+                        } else {
+                          // Use ScaffoldMessenger to show a snackbar
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('Could not launch $url')),
+                          );
+                          print('Could not launch $url');
+                        }
+                      },
+                      child: Card(
+                        color: Colors.grey[900],
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15.0),
+                        ),
+                        child: Stack(
                           children: [
-                            Text(
-                              scheme['title']!,
-                              style: const TextStyle(
-                                fontSize: 20.0,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(15.0),
+                              child: Image.asset(
+                                scheme['image']!,
+                                fit: BoxFit.cover,
+                                height:
+                                    MediaQuery.of(context).size.height * 0.4,
+                                width: double.infinity,
                               ),
                             ),
-                            const SizedBox(height: 10.0),
-                            Text(
-                              scheme['description']!,
-                              style: const TextStyle(
-                                fontSize: 16.0,
-                                color: Colors.white70,
+                            Container(
+                              decoration: BoxDecoration(
+                                color: Colors.black54,
+                                borderRadius: BorderRadius.circular(15.0),
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    scheme['title']!,
+                                    style: const TextStyle(
+                                      fontSize: 20.0,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 10.0),
+                                  Text(
+                                    scheme['description']!,
+                                    style: const TextStyle(
+                                      fontSize: 16.0,
+                                      color: Colors.white70,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           ],
@@ -149,7 +210,6 @@ class HomePageCitizen extends StatelessWidget {
                   width: double.infinity,
                   child: ElevatedButton(
                     onPressed: () {
-                      // Navigate to the ViewAllComplaintsPage
                       Navigator.of(context).push(
                         MaterialPageRoute(
                           builder: (context) => ViewAllComplaintsPage(),
@@ -188,6 +248,10 @@ class HomePageCitizen extends StatelessWidget {
             icon: Icon(Icons.chat),
             label: 'Chatbot',
           ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.picture_as_pdf),
+            label: 'PDF Chat',
+          ),
         ],
         onTap: (index) {
           if (index == 0) {
@@ -197,7 +261,17 @@ class HomePageCitizen extends StatelessWidget {
               ),
             );
           } else if (index == 1) {
-            // Implement navigation to Chatbot page if available
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => ChatBotPage(),
+              ),
+            );
+          } else if (index == 2) {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => PdfChat(),
+              ),
+            );
           }
         },
       ),

@@ -70,7 +70,7 @@ class _RegisterComplaintPageState extends State<RegisterComplaintPage> {
         imageUrl = await storageRef.getDownloadURL(); // Get the image URL
       }
 
-      // Store the complaint in Firestore with the count initialized to 0
+      // Store the complaint in Firestore with the count and upVote status initialized
       await _firestore.collection('complaints').add({
         'userId':
             userId, // Store the userId retrieved from the users collection
@@ -79,6 +79,7 @@ class _RegisterComplaintPageState extends State<RegisterComplaintPage> {
         'imageUrl': imageUrl,
         'completionStatus': 0, // Set initial completion status to 0
         'count': 0, // Initialize count to 0
+        'upVote': 0, // Add the upVote status initialized to 0 (false)
         'timestamp': FieldValue.serverTimestamp(),
       });
 
@@ -95,8 +96,10 @@ class _RegisterComplaintPageState extends State<RegisterComplaintPage> {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
-        title: const Text('Register Complaint'),
+        title: const Text('Register Complaint',
+            style: TextStyle(color: Colors.white)),
         backgroundColor: Colors.black,
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: Padding(
         padding: const EdgeInsets.all(24.0),
@@ -161,17 +164,20 @@ class _RegisterComplaintPageState extends State<RegisterComplaintPage> {
                 },
               ),
               const SizedBox(height: 20.0),
-              ElevatedButton(
-                onPressed: _pickImage,
-                style: ElevatedButton.styleFrom(
-                  foregroundColor: Colors.black,
-                  backgroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 16.0),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12.0),
+              SizedBox(
+                width: double.infinity, // Make the button take full width
+                child: ElevatedButton(
+                  onPressed: _pickImage,
+                  style: ElevatedButton.styleFrom(
+                    foregroundColor: Colors.black,
+                    backgroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 16.0),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12.0),
+                    ),
                   ),
+                  child: const Text('Capture Image'),
                 ),
-                child: const Text('Capture Image'),
               ),
               const SizedBox(height: 20.0),
               if (_image != null)

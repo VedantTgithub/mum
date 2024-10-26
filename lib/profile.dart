@@ -21,11 +21,9 @@ class _ProfilePageState extends State<ProfilePage> {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
-        title: const Text(
-          'Profile - Complaints',
-          style: TextStyle(color: Colors.white),
-        ),
-        backgroundColor: Colors.black,
+        title: const Text('Profile - Complaints',
+            style: TextStyle(color: Color.fromARGB(255, 0, 0, 0))),
+        iconTheme: const IconThemeData(color: Color.fromARGB(255, 0, 0, 0)),
       ),
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance

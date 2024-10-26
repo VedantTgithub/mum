@@ -28,7 +28,7 @@ class ViewAllComplaintsPage extends StatelessWidget {
     final complaintRef = complaintsRef.doc(complaintId);
 
     if (await hasUserVoted(complaintId, userId)) {
-      return;
+      return; // User has already voted
     }
 
     await FirebaseFirestore.instance.runTransaction((transaction) async {
@@ -50,7 +50,7 @@ class ViewAllComplaintsPage extends StatelessWidget {
       transaction.update(complaintRef, {'count': newCount});
 
       // Check if new count exceeds 5 and update completion status
-      if (newCount > 5) {
+      if (newCount >= 5) {
         transaction.update(complaintRef, {'completionStatus': 1});
       }
 
@@ -63,11 +63,15 @@ class ViewAllComplaintsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('All Complaints'),
+        title:
+            const Text('All Complaints', style: TextStyle(color: Colors.white)),
         backgroundColor: Colors.black,
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: StreamBuilder<QuerySnapshot>(
-        stream: complaintsRef.snapshots(),
+        stream: complaintsRef
+            .where('upVote', isEqualTo: true)
+            .snapshots(), // Filter by upVote status
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
             return const Center(child: CircularProgressIndicator());
@@ -96,7 +100,21 @@ class ViewAllComplaintsPage extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           if (complaint['imageUrl'] != null)
-                            Image.network(complaint['imageUrl']),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  'Image Proof:',
+                                  style: TextStyle(
+                                    fontSize: 16.0,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                const SizedBox(height: 8.0),
+                                Image.network(complaint['imageUrl']),
+                              ],
+                            ),
                           const SizedBox(height: 10.0),
                           Text(
                             complaint['description'] ?? '',
@@ -133,7 +151,7 @@ class ViewAllComplaintsPage extends StatelessWidget {
                                   hasVoted ? Colors.grey : Colors.blue,
                             ),
                             child: Text(
-                              hasVoted ? 'Voted' : 'Upvote',
+                              hasVoted ? 'You have already upvoted' : 'Upvote',
                               style: const TextStyle(fontSize: 16.0),
                             ),
                           ),

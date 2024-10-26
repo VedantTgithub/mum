@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'loginpage.dart'; // Import your login page here
 
 class RegistrationPage extends StatelessWidget {
   final _formKey = GlobalKey<FormState>();
@@ -28,7 +29,7 @@ class RegistrationPage extends StatelessWidget {
 
         // Create a document in Firestore with the UID as the document ID
         await _firestore.collection('users').doc(uid).set({
-          'userId': uid, // This field matches the document ID
+          'userId': uid,
           'name': _nameController.text.trim(),
           'email': _emailController.text.trim(),
           'password': _passwordController.text
@@ -36,9 +37,15 @@ class RegistrationPage extends StatelessWidget {
           'role': 'citizen',
         });
 
-        // Notify user of success
+        // Notify user of success and navigate to login page
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Registration successful!')),
+        );
+
+        // Navigate to the login page
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => LoginPage()),
         );
       } catch (e) {
         // Handle errors
@@ -177,6 +184,21 @@ class RegistrationPage extends StatelessWidget {
                   onPressed: () => _registerUser(context),
                   child:
                       const Text('Register', style: TextStyle(fontSize: 18.0)),
+                ),
+              ),
+              const SizedBox(height: 16.0),
+              Center(
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => LoginPage()),
+                    );
+                  },
+                  child: const Text(
+                    'Already have an account? Login',
+                    style: TextStyle(color: Colors.white70),
+                  ),
                 ),
               ),
             ],
