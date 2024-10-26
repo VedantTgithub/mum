@@ -1,9 +1,9 @@
-// home_page_citizen.dart
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:mumbaihacksfinal/loginpage.dart';
-import 'registercomplaint.dart'; // Import the new page
+import 'registercomplaint.dart'; // Import the Register Complaint page
+import 'profile.dart'; // Import the Profile Page
 
 class HomePageCitizen extends StatelessWidget {
   const HomePageCitizen({Key? key}) : super(key: key);
@@ -39,14 +39,13 @@ class HomePageCitizen extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () async {
-              // Implement logout functionality here
               await FirebaseAuth.instance.signOut(); // Sign out from Firebase
 
               // Navigate to Login page
               Navigator.of(context).pushAndRemoveUntil(
                 MaterialPageRoute(
                     builder: (context) =>
-                        LoginPage()), // Adjust to your LoginPage constructor
+                        LoginPage()), // Adjust for your LoginPage
                 (route) => false, // Remove all previous routes
               );
             },
@@ -162,8 +161,14 @@ class HomePageCitizen extends StatelessWidget {
         onTap: (index) {
           if (index == 0) {
             // Navigate to Profile page
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) =>
+                    ProfilePage(), // Adjust for your ProfilePage
+              ),
+            );
           } else if (index == 1) {
-            // Navigate to Chatbot page
+            // Implement navigation to Chatbot page if available
           }
         },
       ),

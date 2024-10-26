@@ -1,139 +1,168 @@
 import 'package:flutter/material.dart';
-import 'package:carousel_slider/carousel_slider.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
-class HomePageCorporator extends StatelessWidget {
-  const HomePageCorporator({Key? key}) : super(key: key);
+class HomePageCorporator extends StatefulWidget {
+  @override
+  _HomePageCorporatorState createState() => _HomePageCorporatorState();
+}
+
+class _HomePageCorporatorState extends State<HomePageCorporator> {
+  late String? corporatorLocation;
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchCorporatorLocation();
+  }
+
+  Future<void> _fetchCorporatorLocation() async {
+    final userId = FirebaseAuth.instance.currentUser?.uid;
+    if (userId != null) {
+      final userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .get();
+      setState(() {
+        corporatorLocation = userDoc['location'];
+        isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    final List<Map<String, String>> projects = [
-      {
-        'title': 'Road Repair Project',
-        'description':
-            'Ongoing road repair in Ward 12. Estimated completion in 3 months.',
-      },
-      {
-        'title': 'Public Park Development',
-        'description':
-            'New park being developed in Greenfield area. Expected opening next year.',
-      },
-      {
-        'title': 'Waste Management Initiative',
-        'description':
-            'Implementing new waste segregation bins across neighborhoods.',
-      },
-    ];
-
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
-        title: const Text('Corporator Dashboard'),
+        title: const Text(
+          'Corporator - Complaints',
+          style: TextStyle(color: Colors.white),
+        ),
         backgroundColor: Colors.black,
       ),
-      body: Column(
-        children: [
-          // Slider with ongoing civic projects
-          SizedBox(
-            height: MediaQuery.of(context).size.height * 0.4,
-            child: CarouselSlider(
-              options: CarouselOptions(
-                height: MediaQuery.of(context).size.height * 0.4,
-                enlargeCenterPage: true,
-                autoPlay: true,
-                aspectRatio: 16 / 9,
-                autoPlayCurve: Curves.fastOutSlowIn,
-                enableInfiniteScroll: true,
-                autoPlayAnimationDuration: const Duration(milliseconds: 800),
-                viewportFraction: 0.8,
-              ),
-              items: projects.map((project) {
-                return Builder(
-                  builder: (BuildContext context) {
-                    return Card(
-                      color: Colors.grey[900],
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(15.0),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              project['title']!,
-                              style: const TextStyle(
-                                fontSize: 20.0,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                            ),
-                            const SizedBox(height: 10.0),
-                            Text(
-                              project['description']!,
-                              style: const TextStyle(
-                                fontSize: 16.0,
-                                color: Colors.white70,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : StreamBuilder<QuerySnapshot>(
+              stream: FirebaseFirestore.instance
+                  .collection('complaints')
+                  .where('completionStatus', isEqualTo: 0)
+                  .where('location', isEqualTo: corporatorLocation)
+                  .snapshots(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                  return const Center(
+                    child: Text(
+                      'No complaints available.',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  );
+                }
+
+                final complaints = snapshot.data!.docs;
+
+                return ListView.builder(
+                  itemCount: complaints.length,
+                  itemBuilder: (context, index) {
+                    final complaint = complaints[index];
+                    return ComplaintCard(complaintData: complaint);
                   },
                 );
-              }).toList(),
+              },
             ),
-          ),
+    );
+  }
+}
 
-          // Manage Complaints Button
-          Padding(
-            padding:
-                const EdgeInsets.symmetric(vertical: 16.0, horizontal: 8.0),
-            child: SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () {
-                  // Navigate to complaint management page
-                },
-                style: ElevatedButton.styleFrom(
-                  foregroundColor: Colors.black,
-                  backgroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 16.0),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12.0),
-                  ),
-                ),
-                child: const Text(
-                  'Manage Complaints',
-                  style: TextStyle(fontSize: 18.0),
-                ),
+class ComplaintCard extends StatefulWidget {
+  final QueryDocumentSnapshot complaintData;
+
+  ComplaintCard({required this.complaintData});
+
+  @override
+  _ComplaintCardState createState() => _ComplaintCardState();
+}
+
+class _ComplaintCardState extends State<ComplaintCard> {
+  bool isExpanded = false;
+
+  void _resolveComplaint() {
+    FirebaseFirestore.instance
+        .collection('complaints')
+        .doc(widget.complaintData.id)
+        .update({'completionStatus': 1}).then((_) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Complaint marked as resolved')),
+      );
+      setState(() {
+        isExpanded = false;
+      });
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      color: Colors.grey[900],
+      margin: const EdgeInsets.all(10),
+      child: Column(
+        children: [
+          ListTile(
+            title: Text(
+              widget.complaintData['description'] ?? 'No description',
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
               ),
             ),
+            subtitle: Text(
+              'Location: ${widget.complaintData['location'] ?? 'Unknown'}',
+              style: const TextStyle(color: Colors.white70),
+            ),
+            trailing: IconButton(
+              icon: Icon(
+                isExpanded ? Icons.expand_less : Icons.expand_more,
+                color: Colors.white,
+              ),
+              onPressed: () {
+                setState(() {
+                  isExpanded = !isExpanded;
+                });
+              },
+            ),
           ),
+          if (isExpanded)
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Description: ${widget.complaintData['description']}',
+                    style: const TextStyle(fontSize: 16, color: Colors.white70),
+                  ),
+                  const SizedBox(height: 8),
+                  if (widget.complaintData['imageUrl'] != null)
+                    Image.network(
+                      widget.complaintData['imageUrl'],
+                      height: 200,
+                    ),
+                  const SizedBox(height: 8),
+                  ElevatedButton(
+                    onPressed: _resolveComplaint,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue,
+                    ),
+                    child: const Text('Resolve Complaint'),
+                  ),
+                ],
+              ),
+            ),
         ],
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: Colors.grey[900],
-        selectedItemColor: Colors.blue,
-        unselectedItemColor: Colors.white70,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Dashboard',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.chat),
-            label: 'Chat with Citizens',
-          ),
-        ],
-        onTap: (index) {
-          if (index == 0) {
-            // Navigate to Dashboard
-          } else if (index == 1) {
-            // Navigate to Chat page
-          }
-        },
       ),
     );
   }
