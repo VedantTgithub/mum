@@ -70,7 +70,7 @@ class _RegisterComplaintPageState extends State<RegisterComplaintPage> {
         imageUrl = await storageRef.getDownloadURL(); // Get the image URL
       }
 
-      // Store the complaint in Firestore
+      // Store the complaint in Firestore with the count initialized to 0
       await _firestore.collection('complaints').add({
         'userId':
             userId, // Store the userId retrieved from the users collection
@@ -78,6 +78,7 @@ class _RegisterComplaintPageState extends State<RegisterComplaintPage> {
         'description': _descriptionController.text,
         'imageUrl': imageUrl,
         'completionStatus': 0, // Set initial completion status to 0
+        'count': 0, // Initialize count to 0
         'timestamp': FieldValue.serverTimestamp(),
       });
 

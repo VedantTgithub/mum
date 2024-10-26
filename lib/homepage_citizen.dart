@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:mumbaihacksfinal/loginpage.dart';
-import 'registercomplaint.dart'; // Import the Register Complaint page
-import 'profile.dart'; // Import the Profile Page
+import 'registercomplaint.dart';
+import 'profile.dart';
+import 'viewall.dart'; // Ensure this import is added
 
 class HomePageCitizen extends StatelessWidget {
   const HomePageCitizen({Key? key}) : super(key: key);
@@ -39,14 +40,13 @@ class HomePageCitizen extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () async {
-              await FirebaseAuth.instance.signOut(); // Sign out from Firebase
+              await FirebaseAuth.instance.signOut();
 
-              // Navigate to Login page
               Navigator.of(context).pushAndRemoveUntil(
                 MaterialPageRoute(
-                    builder: (context) =>
-                        LoginPage()), // Adjust for your LoginPage
-                (route) => false, // Remove all previous routes
+                  builder: (context) => LoginPage(),
+                ),
+                (route) => false,
               );
             },
             child: const Text(
@@ -116,30 +116,61 @@ class HomePageCitizen extends StatelessWidget {
           Padding(
             padding:
                 const EdgeInsets.symmetric(vertical: 16.0, horizontal: 8.0),
-            child: SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () {
-                  // Navigate to complaint registration page
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => RegisterComplaintPage(),
+            child: Column(
+              children: [
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => RegisterComplaintPage(),
+                        ),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      foregroundColor: Colors.black,
+                      backgroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 16.0),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12.0),
+                      ),
                     ),
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  foregroundColor: Colors.black,
-                  backgroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 16.0),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12.0),
+                    child: const Text(
+                      'Register a Complaint',
+                      style: TextStyle(fontSize: 18.0),
+                    ),
                   ),
                 ),
-                child: const Text(
-                  'Register a Complaint',
-                  style: TextStyle(fontSize: 18.0),
+
+                // Upvote Resolved Complaints Button
+                const SizedBox(height: 10.0), // Add some space between buttons
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      // Navigate to the ViewAllComplaintsPage
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => ViewAllComplaintsPage(),
+                        ),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      foregroundColor: Colors.black,
+                      backgroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 16.0),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12.0),
+                      ),
+                    ),
+                    child: const Text(
+                      'Upvote Resolved Complaints',
+                      style: TextStyle(fontSize: 18.0),
+                    ),
+                  ),
                 ),
-              ),
+              ],
             ),
           ),
         ],
@@ -160,11 +191,9 @@ class HomePageCitizen extends StatelessWidget {
         ],
         onTap: (index) {
           if (index == 0) {
-            // Navigate to Profile page
             Navigator.of(context).push(
               MaterialPageRoute(
-                builder: (context) =>
-                    ProfilePage(), // Adjust for your ProfilePage
+                builder: (context) => ProfilePage(),
               ),
             );
           } else if (index == 1) {

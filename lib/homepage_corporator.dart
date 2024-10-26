@@ -90,20 +90,6 @@ class ComplaintCard extends StatefulWidget {
 class _ComplaintCardState extends State<ComplaintCard> {
   bool isExpanded = false;
 
-  void _resolveComplaint() {
-    FirebaseFirestore.instance
-        .collection('complaints')
-        .doc(widget.complaintData.id)
-        .update({'completionStatus': 1}).then((_) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Complaint marked as resolved')),
-      );
-      setState(() {
-        isExpanded = false;
-      });
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -152,13 +138,7 @@ class _ComplaintCardState extends State<ComplaintCard> {
                       height: 200,
                     ),
                   const SizedBox(height: 8),
-                  ElevatedButton(
-                    onPressed: _resolveComplaint,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue,
-                    ),
-                    child: const Text('Resolve Complaint'),
-                  ),
+                  // Remove the resolve button
                 ],
               ),
             ),
