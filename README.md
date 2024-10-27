@@ -4,6 +4,9 @@
 
 **Janhit Mitra** is an innovative application designed to harness the power of AI in addressing societal issues related to governance, policy, inequality, and welfare. This project focuses on enhancing citizen engagement and promoting accountability through two main features: AI-powered chatbots and a complaint management system.
 
+## YouTube Demo Video:
+https://youtu.be/1IosJY7mh8o
+
 ## Problem Statement
 
 Public service institutions often struggle to effectively communicate available schemes, address citizen grievances, and foster transparency in governance. This project aims to bridge the gap by utilizing AI to streamline information dissemination and complaint resolution, ultimately empowering citizens to participate actively in their community's governance.
